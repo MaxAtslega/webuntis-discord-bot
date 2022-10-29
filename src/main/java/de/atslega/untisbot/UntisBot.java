@@ -2,14 +2,16 @@ package de.atslega.untisbot;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import de.atslega.untisbot.commands.SlashCommand;
+import de.atslega.untisbot.commands.Command;
 import de.atslega.untisbot.commands.PingCommand;
+import de.atslega.untisbot.listeners.SlashCommandListener;
 import de.atslega.untisbot.utils.Config;
 import de.atslega.untisbot.utils.FileUtils;
 import io.sentry.Sentry;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
+import net.dv8tion.jda.api.interactions.commands.build.Commands;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,7 +32,7 @@ public class UntisBot extends ListenerAdapter {
     private static UntisBot instance;
     private JDA jda;
 
-    private Map<String, SlashCommand> commands;
+    private Map<String, Command> commands;
 
     public static final File configPath = new File("config.json");
     private static Config config;
@@ -75,16 +77,16 @@ public class UntisBot extends ListenerAdapter {
         }
     }
 
-    public Map<String, SlashCommand> getCommands() {
+    public Map<String, Command> getCommands() {
         if (commands == null) {
-            List<SlashCommand> slashCommands = Arrays.asList(
+            List<Command> slashCommands = Arrays.asList(
                     // bot
-                    new PingCommand()
+                    new PingCommand(Commands.slash("ping", "Ping Befehl"))
                    
             );
 
             this.commands = new HashMap<>();
-            for (SlashCommand cmd : slashCommands) {
+            for (Command cmd : slashCommands) {
                 this.commands.put(cmd.getData().getName(), cmd);
             }
         }
@@ -108,16 +110,16 @@ public class UntisBot extends ListenerAdapter {
 
         jda.setRequiredScopes("applications.commands");
 
+        jda.addEventListener(new SlashCommandListener());
+
         jda.updateCommands()
                 .addCommands(getCommands().values()
                         .stream()
-                        .map(SlashCommand::getData)
+                        .map(Command::getData)
                         .collect(Collectors.toList())
                 )
                 .queue();
     }
-
-
 
     public static Config getConfig() {
         if (config == null) {
@@ -143,7 +145,5 @@ public class UntisBot extends ListenerAdapter {
     public static void saveConfig() throws IOException {
         FileUtils.writeAll(configPath, gson.toJson(config));
     }
-
-
 
 }

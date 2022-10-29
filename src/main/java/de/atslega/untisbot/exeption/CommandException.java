@@ -1,18 +1,18 @@
 package de.atslega.untisbot.exeption;
 
-import de.atslega.untisbot.commands.SlashCommand;
+import de.atslega.untisbot.commands.Command;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 
 public abstract class CommandException extends Exception {
-    private SlashCommand slashCommand;
+    private Command slashCommand;
     private SlashCommandInteractionEvent context;
 
-    public CommandException(SlashCommand cmd, SlashCommandInteractionEvent ctx) {
+    public CommandException(Command cmd, SlashCommandInteractionEvent ctx) {
         this.slashCommand = cmd;
         this.context = ctx;
     }
 
-    public SlashCommand getCommand() {
+    public Command getCommand() {
         return slashCommand;
     }
 
